@@ -131,7 +131,7 @@ export default function CallInfoPage() {
   const [editMode, setEditMode] = React.useState(false)
   const [editedPerson, setEditedPerson] = React.useState(selectedPerson)
   const [expandedCall, setExpandedCall] = React.useState<number | null>(null)
-  const [currentPage, setCurrentPage] = React.useState<"recents" | "keypad">("keypad")
+  const [currentPage, setCurrentPage] = React.useState<"keypad" | "recents">("keypad")
 
   const handleEdit = () => {
     setEditMode(true)
