@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Phone, MessageSquare, Mail, Clock, Edit, Check, X } from "lucide-react"
+import { Phone, MessageSquare, Mail, Clock, Edit, Check, X, Menu } from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import KeypadPage from "./keypad-page"
 
@@ -126,12 +126,15 @@ const mockData = [
   },
 ]
 
+
+
 export default function CallInfoPage() {
   const [selectedPerson, setSelectedPerson] = React.useState(mockData[0])
   const [editMode, setEditMode] = React.useState(false)
   const [editedPerson, setEditedPerson] = React.useState(selectedPerson)
   const [expandedCall, setExpandedCall] = React.useState<number | null>(null)
   const [currentPage, setCurrentPage] = React.useState<"keypad" | "recents">("keypad")
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
 
   const handleEdit = () => {
     setEditMode(true)
@@ -153,10 +156,25 @@ export default function CallInfoPage() {
     setEditedPerson({ ...editedPerson, [e.target.name]: e.target.value })
   }
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen)
+  }
+
   return (
     <div className="flex h-screen bg-background">
+      {/* Hamburger Menu Icon (visible only on small screens) */}
+      <div className="md:hidden fixed top-4 left-4 z-50">
+        <Button variant="outline" size="icon" onClick={toggleSidebar}>
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+
       {/* Left Sidebar */}
-      <aside className="w-64 bg-card text-card-foreground p-4 hidden md:block">
+      <aside
+        className={`w-64 bg-card text-card-foreground p-4 fixed md:relative transform transition-transform duration-200 ease-in-out ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 z-40 h-screen`}
+      >
         <nav className="space-y-2">
           <Button variant="ghost" className="w-full justify-start" onClick={() => setCurrentPage("keypad")}>
             <MessageSquare className="mr-2 h-4 w-4" />
@@ -341,4 +359,3 @@ export default function CallInfoPage() {
     </div>
   )
 }
-

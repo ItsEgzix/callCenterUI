@@ -46,19 +46,43 @@ export default function KeypadPage() {
         .finally(() => setCalling(false))
     }
   }, [calling])
-  
+
+  // Handle keyboard input
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const key = e.key
+
+    // Allow digits, *, #, and +
+    if (/[\d*#+]/.test(key)) {
+      addDigit(key)
+    }
+
+    // Allow backspace to delete a digit
+    if (key === "Backspace") {
+      deleteDigit()
+    }
+
+    // Allow Enter to initiate a call
+    if (key === "Enter") {
+      handleCall()
+    }
+  }
 
   return (
-    
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center">Keypad</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <Input value={number} readOnly className="text-2xl text-center h-12" placeholder="Enter number" />
+          <Input
+            value={number}
+            readOnly
+            className="text-2xl text-center h-12"
+            placeholder="Enter number"
+            onKeyDown={handleKeyDown} // Add keyboard event listener
+          />
           <div className="grid grid-cols-3 gap-4 justify-items-center">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, "*", 0, "#","+"].map((digit) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, "*", 0, "#", "+"].map((digit) => (
               <KeypadButton key={digit} onClick={() => addDigit(digit.toString())}>
                 {digit}
               </KeypadButton>
