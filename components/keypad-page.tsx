@@ -16,6 +16,9 @@ export default function KeypadPage() {
   const [number, setNumber] = React.useState("")
   const [calling, setCalling] = React.useState(false)
 
+  // Replace this with the actual phone number you are using
+  const myPhoneNumber = "+1 (903) 623-5710"
+
   const addDigit = (digit: string) => {
     setNumber((prev) => prev + digit)
   }
@@ -74,6 +77,11 @@ export default function KeypadPage() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Display the phone number you are using */}
+          <div className="text-center text-lg font-medium text-muted-foreground">
+            Calling from: <span className="text-primary">{myPhoneNumber}</span>
+          </div>
+
           <Input
             value={number}
             readOnly
