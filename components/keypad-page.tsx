@@ -31,7 +31,7 @@ export default function KeypadPage() {
 
   React.useEffect(() => {
     if (calling) {
-      fetch("http://localhost:8000/make-call", {
+      fetch("https://ai-call-center-o77f.onrender.com/make-call", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
