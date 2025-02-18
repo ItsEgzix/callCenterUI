@@ -195,9 +195,15 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
             }}
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="voice-1">Alloy</option>
-            <option value="voice-2">Ash</option>
-            <option value="voice-3">Coral</option>
+            <option value="alloy">Alloy</option>
+            <option value="ash">Ash</option>
+            <option value="coral">Coral</option>
+            <option value="echo">Echo</option>
+            <option value="fable">Fable</option>
+            <option value="onyx">Onyx</option>
+            <option value="nova">Nova</option>
+            <option value="sage">Sage</option>
+            <option value="shimmer">Shimmer</option>
           </select>
         </div>
       </div>
