@@ -33,7 +33,7 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
   // Fetch system instructions from API
   const fetchSettings = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/systemInstructionsRouter/system/instructions");
+      const response = await fetch("https://ai-call-center-o77f.onrender.com/systemInstructionsRouter/system/instructions");
       if (!response.ok) throw new Error(`HTTP error. Status: ${response.status}`);
 
       const data = await response.json();
@@ -51,7 +51,7 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
   // Save updated settings
   const handleSave = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/systemInstructionsRouter/system/instructions", {
+      const response = await fetch("https://ai-call-center-o77f.onrender.com/systemInstructionsRouter/system/instructions", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

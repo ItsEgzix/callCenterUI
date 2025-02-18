@@ -86,7 +86,7 @@ export default function CallInfoPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch("http://127.0.0.1:8000/recentcallsRouter/history")
+      const response = await fetch("https://ai-call-center-o77f.onrender.com/recentcallsRouter/history")
       if (!response.ok) {
         throw new Error(`HTTP error. Status: ${response.status}`)
       }
@@ -105,7 +105,7 @@ export default function CallInfoPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`http://127.0.0.1:8000/userRouter/customer/details?id=${customerId}`)
+      const response = await fetch(`https://ai-call-center-o77f.onrender.com/userRouter/customer/details?id=${customerId}`)
       if (!response.ok) {
         throw new Error(`HTTP error. Status: ${response.status}`)
       }
