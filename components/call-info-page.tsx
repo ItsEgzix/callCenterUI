@@ -5,151 +5,166 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Phone, MessageSquare, Mail, Clock, Edit, Check, X, Menu } from "lucide-react"
+import {
+  Phone,
+  MessageSquare,
+  Mail,
+  Clock,
+  Edit,
+  Check,
+  X,
+  Menu,
+  Settings,
+  ArrowDownLeft,
+  ArrowUpRight,
+  XCircle,
+  CheckCircle,
+} from "lucide-react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import KeypadPage from "./keypad-page"
+import { SettingsPanel } from "./setting-panel"
 
-const mockData = [
-  {
-    id: 1,
-    name: "Alice Johnson",
-    phone: "+1 (555) 123-4567",
-    email: "alice@example.com",
-    avatar: "/placeholder.svg?height=96&width=96",
-    calls: [
-      {
-        time: "Today at 10:30 AM",
-        duration: "15 min",
-        summary: "Scheduled a meeting for next week on Tuesday at 2 PM.",
-        transcription: [
-          { speaker: "AI", text: "Hello Alice, how can I assist you today?" },
-          { speaker: "Alice", text: "I need to schedule a meeting for next week." },
-          { speaker: "AI", text: "Certainly, I can help you with that. What day and time works best for you?" },
-          { speaker: "Alice", text: "How about Tuesday at 2 PM?" },
-          {
-            speaker: "AI",
-            text: "Tuesday at 2 PM works great. I've scheduled the meeting for you. Is there anything else you need?",
-          },
-          { speaker: "Alice", text: "No, that's all. Thank you!" },
-          { speaker: "AI", text: "You're welcome, Alice. Have a great day!" },
-        ],
-      },
-      {
-        time: "Yesterday",
-        duration: "5 min",
-        summary: "Confirmed appointment for tomorrow at 3 PM.",
-        transcription: [
-          { speaker: "AI", text: "Good morning, Alice. How may I help you?" },
-          { speaker: "Alice", text: "I just wanted to confirm my appointment for tomorrow." },
-          {
-            speaker: "AI",
-            text: "Of course, let me check that for you. Yes, your appointment is confirmed for tomorrow at 3 PM.",
-          },
-          { speaker: "Alice", text: "Perfect, thank you!" },
-          { speaker: "AI", text: "You're welcome. Is there anything else you need assistance with?" },
-          { speaker: "Alice", text: "No, that's all. Thanks again!" },
-          { speaker: "AI", text: "My pleasure, Alice. Have a great day ahead!" },
-        ],
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Bob Smith",
-    phone: "+1 (555) 987-6543",
-    email: "bob@example.com",
-    avatar: "/placeholder.svg?height=96&width=96",
-    calls: [
-      {
-        time: "Yesterday",
-        duration: "10 min",
-        summary: "Updated account information with new address: 123 New Street, Anytown, USA 12345",
-        transcription: [
-          { speaker: "AI", text: "Hello Bob, how can I assist you today?" },
-          { speaker: "Bob", text: "I need to update my account information." },
-          { speaker: "AI", text: "Certainly, I can help you with that. What information would you like to update?" },
-          { speaker: "Bob", text: "I've moved to a new address." },
-          { speaker: "AI", text: "I see. Can you please provide me with your new address?" },
-          { speaker: "Bob", text: "123 New Street, Anytown, USA 12345" },
-          {
-            speaker: "AI",
-            text: "Thank you, Bob. I've updated your address in our system. Is there anything else you need help with?",
-          },
-          { speaker: "Bob", text: "No, that's all for now. Thanks!" },
-          { speaker: "AI", text: "You're welcome, Bob. Have a great day!" },
-        ],
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Charlie Brown",
-    phone: "+1 (555) 246-8135",
-    email: "charlie@example.com",
-    avatar: "/placeholder.svg?height=96&width=96",
-    calls: [
-      {
-        time: "2 days ago",
-        duration: "30 min",
-        summary: "Troubleshooted internet connection issue.",
-        transcription: [
-          { speaker: "AI", text: "Hello Charlie, how may I assist you today?" },
-          { speaker: "Charlie", text: "I'm having trouble with my internet connection." },
-          {
-            speaker: "AI",
-            text: "I'm sorry to hear that. Let's troubleshoot the issue. Have you tried restarting your router?",
-          },
-          { speaker: "Charlie", text: "Yes, I've already done that." },
-          {
-            speaker: "AI",
-            text: "Okay, let's try a few more steps. Can you please check if all the cables are properly connected?",
-          },
-          { speaker: "Charlie", text: "Yes, they all seem to be connected correctly." },
-          {
-            speaker: "AI",
-            text: "I see. Let's try resetting your network settings. I'll guide you through the process...",
-          },
-          // ... more troubleshooting steps ...
-          { speaker: "Charlie", text: "Great, it's working now! Thank you so much for your help." },
-          {
-            speaker: "AI",
-            text: "You're welcome, Charlie. I'm glad we could resolve the issue. Is there anything else you need assistance with?",
-          },
-          { speaker: "Charlie", text: "No, that's all. Thanks again!" },
-          {
-            speaker: "AI",
-            text: "It's my pleasure, Charlie. Have a great day, and don't hesitate to call if you need any further assistance.",
-          },
-        ],
-      },
-    ],
-  },
-]
+interface Transcription {
+  role: string
+  text: string
+}
 
+interface CallHistory {
+  time: string
+  duration: number | null
+  transcriptions: Transcription[]
+}
 
+interface Person {
+  id: string
+  name: string
+  phone: string
+  email: string
+  lastCall: string
+  callHistory: CallHistory[]
+}
+
+interface Call {
+  id: string
+  customerId: number
+  customerName: string
+  time: string
+  duration: number | null
+  status?: string
+  direction?: string
+}
+
+const getInitials = (name: string | null | undefined): string => {
+  if (!name || typeof name !== "string") return "?"
+  return (
+    name
+      .split(" ")
+      .map((part) => part[0] || "")
+      .join("")
+      .toUpperCase() || "?"
+  )
+}
 
 export default function CallInfoPage() {
-  const [selectedPerson, setSelectedPerson] = React.useState(mockData[0])
+  const [selectedPerson, setSelectedPerson] = React.useState<Person | null>(null)
   const [editMode, setEditMode] = React.useState(false)
-  const [editedPerson, setEditedPerson] = React.useState(selectedPerson)
+  const [editedPerson, setEditedPerson] = React.useState<Partial<Person>>({})
   const [expandedCall, setExpandedCall] = React.useState<number | null>(null)
-  const [currentPage, setCurrentPage] = React.useState<"keypad" | "recents">("keypad")
+  const [currentPage, setCurrentPage] = React.useState("recents")
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
+  const [recentCalls, setRecentCalls] = React.useState<Call[]>([])
+  const [userDetails, setUserDetails] = React.useState<Person | null>(null)
+  const [settings, setSettings] = React.useState({})
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
-  const handleEdit = () => {
-    setEditMode(true)
-    setEditedPerson(selectedPerson)
+  React.useEffect(() => {
+    fetchRecentCalls()
+  }, [])
+
+  const fetchRecentCalls = async () => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await fetch("http://127.0.0.1:8000/recentcallsRouter/history")
+      if (!response.ok) {
+        throw new Error(`HTTP error. Status: ${response.status}`)
+      }
+      const data = await response.json()
+      setRecentCalls(data)
+    } catch (error) {
+      console.error("Failed to fetch recent calls:", error)
+      setError("Failed to load recent calls. Please try again later.")
+      setRecentCalls([])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    setSelectedPerson(editedPerson)
-    setEditMode(false)
-    // In a real application, you would save the changes to your backend here
+  const fetchUserDetails = async (customerId: number) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/userRouter/customer/details?id=${customerId}`)
+      if (!response.ok) {
+        throw new Error(`HTTP error. Status: ${response.status}`)
+      }
+      const data = await response.json()
+      setUserDetails(data)
+      setSelectedPerson(data)
+    } catch (error) {
+      console.error("Failed to fetch user details:", error)
+      setError("Failed to load user details. Please try again later.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleEdit = () => {
+    if (selectedPerson) {
+      setEditMode(true)
+      setEditedPerson(selectedPerson)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!selectedPerson) return
+
+    try {
+      const nameParts = (editedPerson.name || "").split(" ")
+      const firstName = nameParts.shift() || ""
+      const lastName = nameParts.join(" ")
+
+      const response = await fetch("http://127.0.0.1:8000/userRouter/customer/details", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedPerson.id,
+          firstName,
+          lastName,
+          phone: editedPerson.phone || "",
+          email: editedPerson.email || "",
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error. Status: ${response.status}`)
+      }
+
+      // Update local state
+      setSelectedPerson({ ...selectedPerson, ...editedPerson })
+      setEditMode(false)
+    } catch (err) {
+      console.error("Failed to update user:", err)
+      setError("Failed to update user. Please try again later.")
+    }
   }
 
   const handleCancel = () => {
     setEditMode(false)
-    setEditedPerson(selectedPerson)
+    if (selectedPerson) {
+      setEditedPerson(selectedPerson)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,14 +177,11 @@ export default function CallInfoPage() {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Hamburger Menu Icon (visible only on small screens) */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <Button variant="outline" size="icon" onClick={toggleSidebar}>
           <Menu className="h-4 w-4" />
         </Button>
       </div>
-
-      {/* Left Sidebar */}
       <aside
         className={`w-64 bg-card text-card-foreground p-4 fixed md:relative transform transition-transform duration-200 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -184,175 +196,219 @@ export default function CallInfoPage() {
             <Phone className="mr-2 h-4 w-4" />
             Recents
           </Button>
+          <Button variant="ghost" className="w-full justify-start" onClick={() => setCurrentPage("settings")}>
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </Button>
         </nav>
       </aside>
-
-      {/* Main Content */}
       <main className="flex-1 p-4 overflow-auto">
-        {currentPage === "keypad" ? (
-          <KeypadPage />
-        ) : (
+        {currentPage === "keypad" && <KeypadPage />}
+        {currentPage === "settings" && (
+          <SettingsPanel onSave={(newSettings) => setSettings(newSettings)} onClose={() => setCurrentPage("recents")} />
+        )}
+        {currentPage === "recents" && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Recent Calls */}
             <Card>
               <CardHeader>
                 <CardTitle>Recent Calls</CardTitle>
                 <CardDescription>Your latest call activities</CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-4">
-                  {mockData.map((person) => (
-                    <li
-                      key={person.id}
-                      className="flex items-center space-x-4 cursor-pointer hover:bg-accent rounded-md p-2"
-                      onClick={() => setSelectedPerson(person)}
-                    >
-                      <Avatar>
-                        <AvatarImage src={person.avatar} alt={person.name} />
-                        <AvatarFallback>
-                          {person.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <p className="font-medium">{person.name}</p>
-                        <p className="text-sm text-muted-foreground">{person.calls[0].time}</p>
-                      </div>
-                      <div className="text-sm text-muted-foreground">{person.calls[0].duration}</div>
-                    </li>
-                  ))}
-                </ul>
+                {isLoading && <p className="text-center py-4">Loading recent calls...</p>}
+                {error && <p className="text-center py-4 text-red-500">{error}</p>}
+                {!isLoading && !error && recentCalls.length === 0 && (
+                  <p className="text-center py-4">No recent calls found</p>
+                )}
+                {!isLoading && !error && recentCalls.length > 0 && (
+                  <ScrollArea className="h-[790px] w-full rounded-md border p-2">
+                    <ul className="space-y-4">
+                      {recentCalls.map((call) => (
+                        <li
+                          key={call.id}
+                          className="flex items-center space-x-4 cursor-pointer hover:bg-accent rounded-md p-2"
+                          onClick={() => fetchUserDetails(call.customerId)}
+                        >
+                          <Avatar>
+                            <AvatarImage src="/placeholder.svg?height=96&width=96" alt={call.customerName} />
+                            <AvatarFallback>{getInitials(call.customerName)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                            <p className="font-medium">{call.customerName || "Unknown"}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(call.time).toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {call.direction === "INBOUND" ? (
+                              <ArrowDownLeft className="h-4 w-4 text-blue-600" />
+                            ) : (
+                              <ArrowUpRight className="h-4 w-4 text-purple-600" />
+                            )}
+                            {call.status === "ANSWERED" ? (
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-600" />
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {call.duration ? `${call.duration} min` : "N/A"}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </ScrollArea>
+                )}
               </CardContent>
             </Card>
-
-            {/* Person Details */}
-            <div className="space-y-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle>Contact Details</CardTitle>
-                  {!editMode && (
-                    <Button variant="ghost" size="sm" onClick={handleEdit}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center space-y-4">
-                    <Avatar className="w-24 h-24">
-                      <AvatarImage src={selectedPerson.avatar} alt={selectedPerson.name} />
-                      <AvatarFallback>
-                        {selectedPerson.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    {editMode ? (
-                      <div className="space-y-2 w-full">
-                        <Input name="name" value={editedPerson.name} onChange={handleInputChange} placeholder="Name" />
-                        <Input
-                          name="phone"
-                          value={editedPerson.phone}
-                          onChange={handleInputChange}
-                          placeholder="Phone"
-                        />
-                        <Input
-                          name="email"
-                          value={editedPerson.email}
-                          onChange={handleInputChange}
-                          placeholder="Email"
-                        />
-                        <div className="flex justify-end space-x-2">
-                          <Button onClick={handleSave} size="sm">
-                            <Check className="mr-2 h-4 w-4" />
-                            Save
-                          </Button>
-                          <Button onClick={handleCancel} variant="outline" size="sm">
-                            <X className="mr-2 h-4 w-4" />
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 w-full">
-                        <h3 className="text-xl font-semibold">{selectedPerson.name}</h3>
-                        <div className="flex items-center">
-                          <Phone className="mr-2 h-4 w-4" />
-                          <span>{selectedPerson.phone}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Mail className="mr-2 h-4 w-4" />
-                          <span>{selectedPerson.email}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Clock className="mr-2 h-4 w-4" />
-                          <span>Last call: {selectedPerson.calls[0].time}</span>
-                        </div>
-                      </div>
-                    )}
+            {selectedPerson && (
+              <div className="space-y-4">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle>Contact Details</CardTitle>
                     {!editMode && (
-                      <div className="flex space-x-2 w-full">
-                        <Button className="flex-1">
-                          <Phone className="mr-2 h-4 w-4" />
-                          Call
-                        </Button>
-                      </div>
+                      <Button variant="ghost" size="sm" onClick={handleEdit}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Call History</CardTitle>
-                  <CardDescription>Recent calls and transcriptions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[300px] w-full rounded-md border p-4">
-                    {selectedPerson.calls.map((call, index) => (
-                      <Card key={index} className="mb-4 p-4">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-semibold text-primary">{call.time}</h4>
-                          <span className="text-sm font-medium text-muted-foreground">{call.duration}</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{call.summary}</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setExpandedCall(expandedCall === index ? null : index)}
-                          className="w-full justify-center"
-                        >
-                          {expandedCall === index ? "Hide" : "Show"} Transcription
-                        </Button>
-                        {expandedCall === index && (
-                          <div className="mt-2 space-y-2">
-                            {call.transcription.map((entry, i) => (
-                              <div
-                                key={i}
-                                className={`flex ${entry.speaker === "AI" ? "justify-start" : "justify-end"}`}
-                              >
-                                <div
-                                  className={`max-w-[80%] rounded-lg p-2 ${
-                                    entry.speaker === "AI"
-                                      ? "bg-primary text-primary-foreground"
-                                      : "bg-secondary text-secondary-foreground"
-                                  }`}
-                                >
-                                  <p className="text-sm font-semibold">{entry.speaker}</p>
-                                  <p className="text-sm">{entry.text}</p>
-                                </div>
-                              </div>
-                            ))}
+                  </CardHeader>
+                  <CardContent>
+                    {isLoading ? (
+                      <p className="text-center py-4">Loading contact details...</p>
+                    ) : (
+                      <div className="flex flex-col items-center space-y-4">
+                        <Avatar className="w-24 h-24">
+                          <AvatarImage src="/placeholder.svg?height=96&width=96" alt={selectedPerson.name} />
+                          <AvatarFallback>{getInitials(selectedPerson.name)}</AvatarFallback>
+                        </Avatar>
+                        {editMode ? (
+                          <div className="space-y-2 w-full">
+                            <Input
+                              name="name"
+                              value={editedPerson.name || ""}
+                              onChange={handleInputChange}
+                              placeholder="Name"
+                            />
+                            <Input
+                              name="phone"
+                              value={editedPerson.phone || ""}
+                              onChange={handleInputChange}
+                              placeholder="Phone"
+                            />
+                            <Input
+                              name="email"
+                              value={editedPerson.email || ""}
+                              onChange={handleInputChange}
+                              placeholder="Email"
+                            />
+                            <div className="flex justify-end space-x-2">
+                              <Button onClick={handleSave} size="sm">
+                                <Check className="mr-2 h-4 w-4" />
+                                Save
+                              </Button>
+                              <Button onClick={handleCancel} variant="outline" size="sm">
+                                <X className="mr-2 h-4 w-4" />
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 w-full">
+                            <h3 className="text-xl font-semibold">{selectedPerson.name || "Unknown"}</h3>
+                            <div className="flex items-center">
+                              <Phone className="mr-2 h-4 w-4" />
+                              <span>{selectedPerson.phone || "No phone number"}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Mail className="mr-2 h-4 w-4" />
+                              <span>{selectedPerson.email || "No email address"}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="mr-2 h-4 w-4" />
+                              <span>
+                                Last call:{" "}
+                                {selectedPerson.lastCall
+                                  ? new Date(selectedPerson.lastCall).toLocaleString()
+                                  : "Never"}
+                              </span>
+                            </div>
                           </div>
                         )}
-                      </Card>
-                    ))}
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
+                        {!editMode && (
+                          <div className="flex space-x-2 w-full">
+                            <Button className="flex-1">
+                              <Phone className="mr-2 h-4 w-4" />
+                              Call
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Call History</CardTitle>
+                    <CardDescription>Recent calls and transcriptions</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {isLoading ? (
+                      <p className="text-center py-4">Loading call history...</p>
+                    ) : (
+                      <ScrollArea className="h-[390px] w-full rounded-md border p-4">
+                        {selectedPerson.callHistory && selectedPerson.callHistory.length > 0 ? (
+                          selectedPerson.callHistory.map((call, index) => (
+                            <Card key={index} className="mb-4 p-4">
+                              <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-semibold text-primary">
+                                  {new Date(call.time).toLocaleString()}
+                                </h4>
+                                <span className="text-sm font-medium text-muted-foreground">
+                                  {call.duration ? `${call.duration} min` : "N/A"}
+                                </span>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setExpandedCall(expandedCall === index ? null : index)}
+                                className="w-full justify-center"
+                              >
+                                {expandedCall === index ? "Hide" : "Show"} Transcription
+                              </Button>
+                              {expandedCall === index && call.transcriptions && (
+                                <div className="mt-2 space-y-2">
+                                  {call.transcriptions.map((entry, i) => (
+                                    <div
+                                      key={i}
+                                      className={`flex ${
+                                        entry.role === "ai" ? "justify-start" : "justify-end"
+                                      }`}
+                                    >
+                                      <div
+                                        className={`max-w-[80%] rounded-lg p-2 ${
+                                          entry.role === "ai"
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-secondary text-secondary-foreground"
+                                        }`}
+                                      >
+                                        <p className="text-sm font-semibold">{entry.role}</p>
+                                        <p className="text-sm">{entry.text}</p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </Card>
+                          ))
+                        ) : (
+                          <p className="text-center py-4">No call history available</p>
+                        )}
+                      </ScrollArea>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         )}
       </main>
