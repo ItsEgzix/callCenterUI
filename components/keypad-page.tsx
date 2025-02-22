@@ -62,7 +62,7 @@ export default function KeypadPage({ userId }: KeypadPageProps) {
         .catch((err) => console.error("Error making call:", err))
         .finally(() => setCalling(false));
     }
-  }, [calling]);
+  }, [calling, number, userId]); // Add number and userId to the dependency array
 
   // Handle keyboard input
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

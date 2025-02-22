@@ -9,9 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export function UserAuthForm({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [email, setEmail] = React.useState<string>("");
   const [password, setPassword] = React.useState<string>("");
@@ -24,7 +22,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setError(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/loginRouter/login", {
+      const response = await fetch("https://ai-call-center-o77f.onrender.com/loginRouter/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,20 +36,20 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         throw new Error(data.message || "Login failed");
       }
 
-      // ✅ Store the token in cookies
+
       Cookies.set("auth-token", data.token, {
-        expires: 1, // Expires in 1 day
-        secure: process.env.NODE_ENV === "production", // Use HTTPS in production
+        expires: 1,
+        secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
       });
 
-      // Log the token to verify it's saved in the cookie
+
       console.log("Token saved in cookie:", Cookies.get("auth-token"));
 
-      // ✅ Redirect to the dashboard after successful login
+
       router.push("/dashboard");
-    } catch (error: any) {
-      setError(error.message || "An error occurred during login");
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "An error occurred during login");
     } finally {
       setIsLoading(false);
     }

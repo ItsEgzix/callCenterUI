@@ -94,6 +94,14 @@ export default function CallInfoPage({ userId }: CallInfoPageProps) {
     }
   }, [userId]);
 
+  React.useEffect(() => {
+    console.log("settings updated")
+  }, [settings]);
+
+  React.useEffect(() => {
+    console.log("user details updated")
+  }, [userDetails]);
+
   const fetchRecentCalls = async (userId: string) => {
     setIsLoading(true);
     setError(null);

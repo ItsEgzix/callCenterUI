@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { CardDescription } from "@/components/ui/card";
@@ -27,13 +27,8 @@ export function SettingsPanel({ userId, onSave, onClose }: SettingsPanelProps) {
   const [outboundVoice, setOutboundVoice] = useState("voice-1");
   const [isEdited, setIsEdited] = useState(false);
 
-  // Fetch settings when userId changes
-  useEffect(() => {
-    fetchSettings();
-  }, [userId]);
-
-  // Fetch system instructions from API
-  const fetchSettings = async () => {
+  // Memoize fetchSettings using useCallback
+  const fetchSettings = useCallback(async () => {
     try {
       const response = await fetch(
         `http://127.0.0.1:8000/systemInstructionsRouter/system/instructions?userId=${userId}`
@@ -51,7 +46,12 @@ export function SettingsPanel({ userId, onSave, onClose }: SettingsPanelProps) {
     } catch (error) {
       console.error("Failed to fetch settings:", error);
     }
-  };
+  }, [userId]); // Add userId as a dependency
+
+  // Fetch settings when userId changes
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]); // Add fetchSettings to the dependency array
 
   // Save updated settings
   const handleSave = async () => {
