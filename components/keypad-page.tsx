@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Phone, X } from "lucide-react";
 
+interface KeypadPageProps {
+  userId: string; // Add userId as a prop
+}
+
 const KeypadButton = ({
   children,
   onClick,
@@ -22,12 +26,12 @@ const KeypadButton = ({
   </Button>
 );
 
-export default function KeypadPage() {
+export default function KeypadPage({ userId }: KeypadPageProps) {
   const [number, setNumber] = React.useState("");
   const [calling, setCalling] = React.useState(false);
 
   // Replace this with the actual phone number you are using
-  const myPhoneNumber = "+1 (903) 623-5710";
+  const myPhoneNumber = "+1 (903) 623-7510";
 
   const addDigit = (digit: string) => {
     setNumber((prev) => prev + digit);
@@ -49,7 +53,7 @@ export default function KeypadPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ to: number }), // Changed "phoneNumber" to "to"
+        body: JSON.stringify({ to: number, userId }), // Include userId in the request body
       })
         .then((res) => res.json())
         .then((data) => {

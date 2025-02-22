@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CardDescription } from "@/components/ui/card";
 
 interface SettingsPanelProps {
+  userId: string; // userId is passed as a prop
   onSave: (settings: {
     inboundInstructions: string;
     outboundInstructions: string;
@@ -17,7 +18,7 @@ interface SettingsPanelProps {
   onClose: () => void;
 }
 
-export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
+export function SettingsPanel({ userId, onSave, onClose }: SettingsPanelProps) {
   const [inboundInstructions, setInboundInstructions] = useState("");
   const [outboundInstructions, setOutboundInstructions] = useState("");
   const [inboundTemperature, setInboundTemperature] = useState(0.5);
@@ -26,15 +27,19 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
   const [outboundVoice, setOutboundVoice] = useState("voice-1");
   const [isEdited, setIsEdited] = useState(false);
 
+  // Fetch settings when userId changes
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [userId]);
 
   // Fetch system instructions from API
   const fetchSettings = async () => {
     try {
-      const response = await fetch("https://ai-call-center-o77f.onrender.com/systemInstructionsRouter/system/instructions");
-      if (!response.ok) throw new Error(`HTTP error. Status: ${response.status}`);
+      const response = await fetch(
+        `http://127.0.0.1:8000/systemInstructionsRouter/system/instructions?userId=${userId}`
+      );
+      if (!response.ok)
+        throw new Error(`HTTP error. Status: ${response.status}`);
 
       const data = await response.json();
       setInboundInstructions(data.inbound_instructions);
@@ -51,20 +56,25 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
   // Save updated settings
   const handleSave = async () => {
     try {
-      const response = await fetch("https://ai-call-center-o77f.onrender.com/systemInstructionsRouter/system/instructions", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          inbound_instructions: inboundInstructions,
-          outbound_instructions: outboundInstructions,
-          inbound_Temperature: inboundTemperature,
-          outbound_Temperature: outboundTemperature,
-          inbound_voice: inboundVoice,
-          outbound_voice: outboundVoice,
-        }),
-      });
+      const response = await fetch(
+        "https://ai-call-center-o77f.onrender.com/systemInstructionsRouter/system/instructions",
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId, // Use the userId prop here
+            inbound_instructions: inboundInstructions,
+            outbound_instructions: outboundInstructions,
+            inbound_Temperature: inboundTemperature,
+            outbound_Temperature: outboundTemperature,
+            inbound_voice: inboundVoice,
+            outbound_voice: outboundVoice,
+          }),
+        }
+      );
 
-      if (!response.ok) throw new Error(`HTTP error. Status: ${response.status}`);
+      if (!response.ok)
+        throw new Error(`HTTP error. Status: ${response.status}`);
 
       onSave({
         inboundInstructions,
@@ -84,7 +94,10 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
 
   // Warn user if they try to leave without saving
   const handleClose = () => {
-    if (isEdited && !window.confirm("You have unsaved changes. Do you want to leave?")) {
+    if (
+      isEdited &&
+      !window.confirm("You have unsaved changes. Do you want to leave?")
+    ) {
       return;
     }
     onClose();
@@ -93,7 +106,8 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
   return (
     <div className="space-y-4">
       <CardDescription className="text-center">
-        Configure system instructions, temperature, and voice settings for inbound and outbound calls.
+        Configure system instructions, temperature, and voice settings for
+        inbound and outbound calls.
       </CardDescription>
 
       {/* Inbound Settings */}
@@ -119,7 +133,9 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
             High temperature generates more varied and creative text,
             potentially including unexpected or even nonsensical phrases.
           </CardDescription>
-          <span className="text-lg font-medium">{inboundTemperature.toFixed(1)}</span>
+          <span className="text-lg font-medium">
+            {inboundTemperature.toFixed(1)}
+          </span>
           <Slider
             value={[inboundTemperature]}
             onValueChange={(value) => {
@@ -145,12 +161,6 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
             <option value="alloy">Alloy</option>
             <option value="ash">Ash</option>
             <option value="coral">Coral</option>
-            <option value="echo">Echo</option>
-            <option value="fable">Fable</option>
-            <option value="onyx">Onyx</option>
-            <option value="nova">Nova</option>
-            <option value="sage">Sage</option>
-            <option value="shimmer">Shimmer</option>
           </select>
         </div>
       </div>
@@ -178,7 +188,9 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
             Low temperature produces more predictable and consistent text, often
             preferred for tasks requiring accuracy.
           </CardDescription>
-          <span className="text-lg font-medium">{outboundTemperature.toFixed(1)}</span>
+          <span className="text-lg font-medium">
+            {outboundTemperature.toFixed(1)}
+          </span>
           <Slider
             value={[outboundTemperature]}
             onValueChange={(value) => {
@@ -201,15 +213,9 @@ export function SettingsPanel({ onSave, onClose }: SettingsPanelProps) {
             }}
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="alloy">Alloy</option>
-            <option value="ash">Ash</option>
-            <option value="coral">Coral</option>
-            <option value="echo">Echo</option>
-            <option value="fable">Fable</option>
-            <option value="onyx">Onyx</option>
-            <option value="nova">Nova</option>
-            <option value="sage">Sage</option>
-            <option value="shimmer">Shimmer</option>
+            <option value="voice-1">Alloy</option>
+            <option value="voice-2">Ash</option>
+            <option value="voice-3">Coral</option>
           </select>
         </div>
       </div>

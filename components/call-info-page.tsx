@@ -60,6 +60,10 @@ interface Call {
   direction?: string;
 }
 
+interface CallInfoPageProps {
+  userId: string;
+}
+
 const getInitials = (name: string | null | undefined): string => {
   if (!name || typeof name !== "string") return "?";
   return (
@@ -71,29 +75,31 @@ const getInitials = (name: string | null | undefined): string => {
   );
 };
 
-export default function CallInfoPage() {
-  const [selectedPerson, setSelectedPerson] = React.useState<Person | null>(
-    null
-  );
+export default function CallInfoPage({ userId }: CallInfoPageProps) {
+  const [selectedPerson, setSelectedPerson] = React.useState<Person | null>(null);
   const [editMode, setEditMode] = React.useState(false);
   const [editedPerson, setEditedPerson] = React.useState<Partial<Person>>({});
   const [expandedCall, setExpandedCall] = React.useState<number | null>(null);
   const [currentPage, setCurrentPage] = React.useState("recents");
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [recentCalls, setRecentCalls] = React.useState<Call[]>([]);
+  const [userDetails, setUserDetails] = React.useState<Person | null>(null);
+  const [settings, setSettings] = React.useState({});
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    fetchRecentCalls();
-  }, []);
+    if (userId) {
+      fetchRecentCalls(userId);
+    }
+  }, [userId]);
 
-  const fetchRecentCalls = async () => {
+  const fetchRecentCalls = async (userId: string) => {
     setIsLoading(true);
     setError(null);
     try {
       const response = await fetch(
-        "https://ai-call-center-o77f.onrender.com/recentcallsRouter/history"
+        `https://ai-call-center-o77f.onrender.com/recentcallsRouter/history?userId=${userId}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error. Status: ${response.status}`);
@@ -114,12 +120,13 @@ export default function CallInfoPage() {
     setError(null);
     try {
       const response = await fetch(
-        `https://ai-call-center-o77f.onrender.com/userRouter/customer/details?id=${customerId}`
+        `https://ai-call-center-o77f.onrender.com/customerRouter/customer/details?id=${customerId}`
       );
       if (!response.ok) {
         throw new Error(`HTTP error. Status: ${response.status}`);
       }
       const data = await response.json();
+      setUserDetails(data);
       setSelectedPerson(data);
     } catch (error) {
       console.error("Failed to fetch user details:", error);
@@ -145,7 +152,7 @@ export default function CallInfoPage() {
       const lastName = nameParts.join(" ");
 
       const response = await fetch(
-        "http://127.0.0.1:8000/userRouter/customer/details",
+        "http://127.0.0.1:8000/customerRouter/customer/details",
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -227,10 +234,11 @@ export default function CallInfoPage() {
         </nav>
       </aside>
       <main className="flex-1 p-4 overflow-auto">
-        {currentPage === "keypad" && <KeypadPage />}
+        {currentPage === "keypad" && <KeypadPage userId={userId} />}
         {currentPage === "settings" && (
           <SettingsPanel
-            onSave={(newSettings) => console.log(newSettings)}
+            userId={userId}
+            onSave={(newSettings) => setSettings(newSettings)}
             onClose={() => setCurrentPage("recents")}
           />
         )}
@@ -238,8 +246,22 @@ export default function CallInfoPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Calls</CardTitle>
-                <CardDescription>Your latest call activities</CardDescription>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Recent Calls</CardTitle>
+                    <CardDescription>
+                      Your latest call activities
+                    </CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchRecentCalls(userId)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Refreshing..." : "Refresh"}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {isLoading && (
@@ -290,7 +312,7 @@ export default function CallInfoPage() {
                             )}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {call.duration ? `${call.duration} min` : "N/A"}
+                            {call.duration ? `${call.duration} sec` : "N/A"}
                           </div>
                         </li>
                       ))}
